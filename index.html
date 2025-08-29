@@ -9,57 +9,64 @@
   <div class="container py-4">
     <h1 class="mb-4 text-center">📊 Dashboard - Logs & Status</h1>
 
+    <!-- Logs -->
     <h3>📜 Últimos Logs</h3>
     <table class="table table-striped" id="tabla-logs">
       <thead>
-        <tr><th>Equipo</th><th>Mensaje</th><th>Fecha</th></tr>
+        <tr><th>Equipo</th><th>Usuario</th><th>Mensaje</th><th>Fecha</th></tr>
       </thead>
       <tbody></tbody>
     </table>
 
+    <!-- Status -->
     <h3>📡 Estado de Equipos</h3>
     <table class="table table-bordered" id="tabla-status">
       <thead>
-        <tr><th>Equipo</th><th>IP</th><th>Estado</th><th>Fecha</th></tr>
+        <tr><th>Equipo</th><th>Usuario</th><th>Estado</th><th>Fecha</th></tr>
       </thead>
       <tbody></tbody>
     </table>
   </div>
 
   <script>
-    const API_URL = "https://gts-server.onrender.com";
+    const API_URL = "https://gts-server.onrender.com"; // 🔹 tu URL de Render
 
     async function cargarDatos() {
-      // Logs
-      let resLogs = await fetch(`${API_URL}/logs`);
-      let logs = await resLogs.json();
-      let tbodyLogs = document.querySelector("#tabla-logs tbody");
-      tbodyLogs.innerHTML = "";
-      logs.forEach(l => {
-        tbodyLogs.innerHTML += `<tr>
-          <td>${l.equipo}</td>
-          <td>${l.mensaje}</td>
-          <td>${l.fecha}</td>
-        </tr>`;
-      });
+      try {
+        // Logs
+        let resLogs = await fetch(`${API_URL}/logs`);
+        let logs = await resLogs.json();
+        let tbodyLogs = document.querySelector("#tabla-logs tbody");
+        tbodyLogs.innerHTML = "";
+        logs.forEach(l => {
+          tbodyLogs.innerHTML += `<tr>
+            <td>${l.equipo}</td>
+            <td>${l.usuario}</td>
+            <td>${l.mensaje}</td>
+            <td>${l.fecha}</td>
+          </tr>`;
+        });
 
-      // Status
-      let resStatus = await fetch(`${API_URL}/status`);
-      let status = await resStatus.json();
-      let tbodyStatus = document.querySelector("#tabla-status tbody");
-      tbodyStatus.innerHTML = "";
-      status.forEach(s => {
-        tbodyStatus.innerHTML += `<tr>
-          <td>${s.equipo}</td>
-          <td>${s.ip}</td>
-          <td>${s.estado}</td>
-          <td>${s.fecha}</td>
-        </tr>`;
-      });
+        // Status
+        let resStatus = await fetch(`${API_URL}/status`);
+        let status = await resStatus.json();
+        let tbodyStatus = document.querySelector("#tabla-status tbody");
+        tbodyStatus.innerHTML = "";
+        status.forEach(s => {
+          tbodyStatus.innerHTML += `<tr>
+            <td>${s.equipo}</td>
+            <td>${s.usuario}</td>
+            <td>${s.estado}</td>
+            <td>${s.fecha}</td>
+          </tr>`;
+        });
+      } catch (error) {
+        console.error("Error al cargar datos:", error);
+      }
     }
 
     cargarDatos();
-    setInterval(cargarDatos, 5000); // refrescar cada 5 seg
+    setInterval(cargarDatos, 5000); // refrescar cada 5 segundos
   </script>
 </body>
 </html>
