@@ -156,9 +156,14 @@
                 const colEstado = document.createElement("td");
                 colEstado.textContent = s.estado;
 
+                const colFecha = document.createElement("td");
+                const fecha = new Date(s.fecha);
+                colFecha.textContent = fecha.toLocaleString("es-MX", { timeZone: "America/Mexico_City" });
+
                 fila.appendChild(colEquipo);
                 fila.appendChild(colUsuario);
                 fila.appendChild(colEstado);
+                fila.appendChild(colFecha);
 
                 tbody.appendChild(fila);
             });
