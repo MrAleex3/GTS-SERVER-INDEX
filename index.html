@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard GTS Boot Manager</title>
+    <style>
+        
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(circle at top, #0d0d0d, #1a1a1a 80%);
+            color: #e0e0e0;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 20px;
+            border-bottom: 1px solid #333;
+            background: linear-gradient(90deg, #0d0d0d, #111, #0d0d0d);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin: 0;
+            color: #00ffe5;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px #00ffe5;
+        }
+
+        main {
+            padding: 20px;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        h2 {
+            margin-top: 40px;
+            color: #00ffe5;
+            border-left: 4px solid #00ffe5;
+            padding-left: 10px;
+            font-size: 1.3rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: rgba(20, 20, 20, 0.8);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.08);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+        }
+
+        th {
+            background: rgba(0, 255, 229, 0.1);
+            color: #00ffe5;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        tr:hover {
+            background: rgba(0, 255, 229, 0.1);
+            transition: 0.2s;
+        }
+
+        td {
+            font-size: 0.95rem;
+            vertical-align: top;
+        }
+
+        
+        .mensaje {
+            white-space: pre-wrap; 
+            font-family: "Consolas", monospace;
+            color: #e0ffe0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.8rem;
+            color: #777;
+            border-top: 1px solid #333;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Dashboard de Estado y Logs</h1>
+    </header>
+
+    <main>
+        <section>
+            <h2>Estado de Equipos</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Equipo</th>
+                        <th>Usuario</th>
+                        <th>Estado</th>
+                        <th>Ultima actualizacion</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-status"></tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>Logs Recientes</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Equipo</th>
+                        <th>Usuario</th>
+                        <th>Mensaje</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-logs"></tbody>
+            </table>
+        </section>
+    </main>
+
+    <footer>
+        GTS Monitoring Dashboard © 2025
+    </footer>
+
+    <script>
+        async function cargarStatus() {
+            const resp = await fetch("https://gts-server.onrender.com/status");
+            const status = await resp.json();
+            const tbody = document.getElementById("tabla-status");
+
+            tbody.innerHTML = "";
+            status.forEach(s => {
+                const fila = document.createElement("tr");
+
+                const colEquipo = document.createElement("td");
+                colEquipo.textContent = s.equipo;
+
+                const colUsuario = document.createElement("td");
+                colUsuario.textContent = s.usuario || "—";
+
+                const colEstado = document.createElement("td");
+                colEstado.textContent = s.estado;
+
+                const colFecha = document.createElement("td");
+                const fecha = new Date(s.fecha);
+                colFecha.textContent = fecha.toLocaleString("es-MX", { timeZone: "America/Mexico_City" });
+
+                fila.appendChild(colEquipo);
+                fila.appendChild(colUsuario);
+                fila.appendChild(colEstado);
+                fila.appendChild(colFecha);
+
+                tbody.appendChild(fila);
+            });
+        }
+
+        async function cargarLogs() {
+            const resp = await fetch("https://gts-server.onrender.com/logs");
+            const logs = await resp.json();
+            const tbody = document.getElementById("tabla-logs");
+
+            tbody.innerHTML = "";
+            logs.forEach(log => {
+                const fila = document.createElement("tr");
+
+                const colEquipo = document.createElement("td");
+                colEquipo.textContent = log.equipo;
+
+                const colUsuario = document.createElement("td");
+                colUsuario.textContent = log.usuario || "—";
+
+                const colMensaje = document.createElement("td");
+                colMensaje.classList.add("mensaje");
+                colMensaje.innerHTML = log.mensaje.replace(/\n/g, "<br>");
+
+
+                fila.appendChild(colEquipo);
+                fila.appendChild(colUsuario);
+                fila.appendChild(colMensaje);
+
+                tbody.appendChild(fila);
+            });
+        }
+
+        
+        cargarStatus();
+        cargarLogs();
+
+        
+        setInterval(cargarStatus, 5000);
+        setInterval(cargarLogs, 5000);
+    </script>
+</body>
+</html>
