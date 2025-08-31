@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>Dashboard GTS Boot Manager</title>
     <style>
-        
         body {
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -80,7 +79,6 @@
             vertical-align: top;
         }
 
-        
         .mensaje {
             white-space: pre-wrap; 
             font-family: "Consolas", monospace;
@@ -98,48 +96,57 @@
     </style>
 </head>
 <body>
-    <header>
-        <h1>Dashboard de Estado y Logs</h1>
-    </header>
+<header>
+    <h1>Dashboard de Estado y Logs</h1>
+</header>
 
-    <main>
-        <section>
-            <h2>Estado de Equipos</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Equipo</th>
-                        <th>Usuario</th>
-                        <th>Estado</th>
-                        <th>Ultima actualizacion</th>
-                    </tr>
-                </thead>
-                <tbody id="tabla-status"></tbody>
-            </table>
-        </section>
+<main>
+    <section>
+        <h2>Estado de Equipos</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Equipo</th>
+                    <th>Usuario</th>
+                    <th>Estado</th>
+                    <th>Última actualización</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-status"></tbody>
+        </table>
+    </section>
 
-        <section>
-            <h2>Logs Recientes</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Equipo</th>
-                        <th>Usuario</th>
-                        <th>Mensaje</th>
-                    </tr>
-                </thead>
-                <tbody id="tabla-logs"></tbody>
-            </table>
-        </section>
-    </main>
+    <section>
+        <h2>Logs Recientes</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Equipo</th>
+                    <th>Usuario</th>
+                    <th>Mensaje</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-logs"></tbody>
+        </table>
+    </section>
+</main>
 
-    <footer>
-        GTS Monitoring Dashboard © 2025
-    </footer>
+<footer>
+    GTS Monitoring Dashboard © 2025
+</footer>
 
-    <script>
-        async function cargarStatus() {
-            const resp = await fetch("https://gts-server.onrender.com/status");
+<script>
+    // 🔹 Usuario y contraseña (puedes pedir al usuario en un prompt o guardarlos en variables seguras)
+    const USUARIO = prompt("Usuario del dashboard:");
+    const PASSWORD = prompt("Contraseña:");
+
+    const headers = new Headers();
+    headers.set('Authorization', 'Basic ' + btoa(USUARIO + ":" + PASSWORD));
+
+    async function cargarStatus() {
+        try {
+            const resp = await fetch("https://gts-server.onrender.com/status", { headers });
+            if (!resp.ok) throw new Error("No autorizado o error de conexión");
             const status = await resp.json();
             const tbody = document.getElementById("tabla-status");
 
@@ -167,10 +174,15 @@
 
                 tbody.appendChild(fila);
             });
+        } catch (error) {
+            console.error(error);
         }
+    }
 
-        async function cargarLogs() {
-            const resp = await fetch("https://gts-server.onrender.com/logs");
+    async function cargarLogs() {
+        try {
+            const resp = await fetch("https://gts-server.onrender.com/logs", { headers });
+            if (!resp.ok) throw new Error("No autorizado o error de conexión");
             const logs = await resp.json();
             const tbody = document.getElementById("tabla-logs");
 
@@ -186,8 +198,7 @@
 
                 const colMensaje = document.createElement("td");
                 colMensaje.classList.add("mensaje");
-                colMensaje.innerHTML = log.mensaje.replace(/\n/g, "<br>");
-
+                colMensaje.textContent = log.mensaje; // sin reemplazar saltos de línea
 
                 fila.appendChild(colEquipo);
                 fila.appendChild(colUsuario);
@@ -195,15 +206,18 @@
 
                 tbody.appendChild(fila);
             });
+        } catch (error) {
+            console.error(error);
         }
+    }
 
-        
-        cargarStatus();
-        cargarLogs();
+    // Cargar datos inicialmente
+    cargarStatus();
+    cargarLogs();
 
-        
-        setInterval(cargarStatus, 5000);
-        setInterval(cargarLogs, 5000);
-    </script>
+    // Refrescar cada 5 segundos
+    setInterval(cargarStatus, 5000);
+    setInterval(cargarLogs, 5000);
+</script>
 </body>
 </html>
